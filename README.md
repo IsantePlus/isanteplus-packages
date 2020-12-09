@@ -42,6 +42,9 @@ See https://docs.github.com/en/free-pro-team@latest/packages/guides/configuring-
     </server>
   ```
   
+## Package Versioning
+See https://wiki.openmrs.org/display/docs/Versioning
+
 ## OpenMRS Omod File Hosting
 This repo also hosts `.omod` files that can be directly dowloaded. To see and use the available `.omod` files:
 1. Sort the packages with the "omod" keyword (https://github.com/orgs/IsantePlus/packages?tab=packages&q=omod)
