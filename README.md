@@ -111,7 +111,7 @@ Add the following section to your `.m2/settings.xm`l file:
 ```  
 
 ### Step 5: Deploy!
-`mvn deploy -P 'github-packages`
+`mvn clean package deploy -P 'github-packages`
   
 ## Package Versioning
 See https://wiki.openmrs.org/display/docs/Versioning
