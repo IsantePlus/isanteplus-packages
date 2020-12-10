@@ -111,7 +111,7 @@ Add the following section to your `.m2/settings.xm`l file:
 ```  
 
 ### Step 5: Deploy!
-`mvn clean package deploy -P 'github-packages`
+`mvn clean package deploy -P 'github-packages'`
   
 ## Package Versioning
 See https://wiki.openmrs.org/display/docs/Versioning
@@ -122,4 +122,4 @@ This repo can also be used to download `.omod` files. To see and use the availab
 2. Click on the desired module
 3. Download the most recent (highest version number) `*.omod` file from the `Assets` section in the right column.
 4. Rename this file to, for example, `<artifactId>-<package-version>.omod`.
-5. Use the file as a normal .omod file. 
+5. Use the file as a normal `.omod` file. 
