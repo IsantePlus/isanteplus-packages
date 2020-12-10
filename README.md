@@ -83,7 +83,7 @@ Since the OpenMRS `*.omod` file is not a standard maven artifact, we need to man
                         <configuration>
                             <url>https://maven.pkg.github.com/isanteplus/isanteplus-packages</url>
                             <file>target/${project.parent.artifactId}-${project.version}.omod</file>
-                            <repositoryId>isanteplus-github</repositoryId>
+                            <repositoryId>github-packages</repositoryId>
                             <pomFile>pom.xml</pomFile>
                             <packaging>omod</packaging>
                         </configuration>
@@ -115,3 +115,11 @@ Add the following section to your `.m2/settings.xm`l file:
   
 ## Package Versioning
 See https://wiki.openmrs.org/display/docs/Versioning
+
+## OpenMRS Omod Files
+This repo can also be used to download `.omod` files. To see and use the available `.omod` files:
+1. Sort the packages with the "omod" keyword (https://github.com/orgs/IsantePlus/packages?tab=packages&q=omod)
+2. Click on the desired module
+3. Download the most recent (highest version number) `*.omod` file from the `Assets` section in the right column.
+4. Rename this file to, for example, `<artifactId>-<package-version>.omod`.
+5. Use the file as a normal .omod file. 
