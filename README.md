@@ -3,6 +3,7 @@
 See https://docs.github.com/en/free-pro-team@latest/packages/guides/configuring-apache-maven-for-use-with-github-packages
 
 **Quick note about maven profiles**
+
 To provide the correct setup for deploying to this repository and using packages from this repository, we're utilizing maven profiles. 
 
 Make sure to check your local maven `settings.xml` file to determine which profiles you have active. 
