@@ -2,96 +2,69 @@
 
 See https://docs.github.com/en/free-pro-team@latest/packages/guides/configuring-apache-maven-for-use-with-github-packages
 
-## Maven Setup Steps for OpenMRS Modules
+**Quick note about maven profiles**
+To provide the correct setup for deploying to this repository and using packages from this repository, we're utilizing maven profiles. 
 
-### Direct Approach
-1. add or replace the `distributionManagement` of the main `pom.xml` with the following:
-  ```
-    <!-- Github Packages Integration -->
-    <distributionManagement>
-      <repository>
-        <id>isanteplus-github</id>
-        <name>Github iSantePlus Packages</name>
-        <url>https://maven.pkg.github.com/isanteplus/isanteplus-packages</url>
-      </repository>
-      <snapshotRepository>
-        <id>isanteplus-github</id>
-        <name>Github iSantePlus Packages</name>
-        <url>https://maven.pkg.github.com/isanteplus/isanteplus-packages</url>
-      </snapshotRepository>
-    </distributionManagement>
-  ```
-2. add the following item to the `repositories` section of the main `pom.xml`:
-  ```
-    <repository>
-	<id>isanteplus-github</id>
-	<name>Github iSantePlus Packages</name>
-	<url>https://maven.pkg.github.com/isanteplus/isanteplus-packages</url>
-	<snapshots><enabled>true</enabled></snapshots>
-    </repository>
-  ```
-  
-3. Create a `Personal Access Token` with package permissions on Github: 
-   https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/creating-a-personal-access-token
+Make sure to check your local maven `settings.xml` file to determine which profiles you have active. 
 
-4. Add the following section to your `.m2/settings.xml` file: 
-  ```
-    <server>
-      <id>isanteplus-github</id>
-      <username>{{YOUR_GITHUB_USERNAME}}</username>
-      <password>{{Your Personal Access Token}}</password>
-    </server>
-  ```
+If you want to have the `github-packages` profile active by default, set it as such in that file. Otherwise, make sure to run each deploy command with the option `-P 'github-packages'`. If you have any other profiles active by default that might interfere with the deployment, you can turn them off like so: `-P '!openmrs,!anotherprofile,github-packages'`. 
   
-### Using a Maven profile
-```
+## Maven setup for OpenMRS modules
+
+### Step 1: Add a new profile to `pom.xml`
+
+Add the following to the `profiles` section of your root `pom.xml` file. 
+
+```xml
 <profiles>
-	<profile>
-		<id>github-packages</id>
-		<!-- Github Packages Integration -->
-		<distributionManagement>
-			<repository>
-				<id>github-packages</id>
-				<name>Github iSantePlus Packages</name>
-				<url>https://maven.pkg.github.com/isanteplus/isanteplus-packages</url>
-			</repository>
-			<snapshotRepository>
-				<id>github-packages</id>
-				<name>Github iSantePlus Packages</name>
-				<url>https://maven.pkg.github.com/isanteplus/isanteplus-packages</url>
-			</snapshotRepository>
-		</distributionManagement>
-		<repositories>
-			<repository>
-				<id>github-packages</id>
-				<name>Github iSantePlus Packages</name>
-				<url>https://maven.pkg.github.com/isanteplus/isanteplus-packages</url>
-				<snapshots><enabled>true</enabled></snapshots>
-			</repository>
-		</repositories>
-	</profile>
-</profiles>
+        <profile>
+	    <!-- Github Packages Integration -->
+            <id>github-packages</id>
+            <distributionManagement>
+	    	<!-- Deploy to Github Packages -->
+                <repository>
+                    <id>github-packages</id>
+                    <name>Github iSantePlus Packages</name>
+                    <url>https://maven.pkg.github.com/isanteplus/isanteplus-packages</url>
+                    <uniqueVersion>false</uniqueVersion>
+                </repository>
+                <snapshotRepository>
+                    <id>github-packages</id>
+                    <name>Github iSantePlus Packages</name>
+                    <url>https://maven.pkg.github.com/isanteplus/isanteplus-packages</url>
+                    <uniqueVersion>true</uniqueVersion>
+                </snapshotRepository>
+            </distributionManagement>
+            <repositories>
+		<!-- Use the Github Packages Repo first when looking up dependencies -->
+                <repository>
+                    <id>github-packages</id>
+                    <name>Github iSantePlus Packages</name>
+                    <url>https://maven.pkg.github.com/isanteplus/isanteplus-packages</url>
+                </repository>
+            </repositories>
+            <build>
+                <plugins>
+	            <!-- Disable possible test jar generation -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-jar-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <phase>none</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 ```
+### Step 2: Add a new profile to `omod/pom.xml`
 
-Then, set `github-packages` as an active profile in your `.m2/settings.xml`. 
+Since the OpenMRS `*.omod` file is not a standard maven artifact, we need to manually push it to the repository. The `omod` file is created in the `omod` submodule, so this profile should be added to `omod/pom.xml`. 
 
-  
-## Package Versioning
-See https://wiki.openmrs.org/display/docs/Versioning
-
-## OpenMRS Omod File Hosting
-This repo also hosts `.omod` files that can be directly dowloaded. To see and use the available `.omod` files:
-1. Sort the packages with the "omod" keyword (https://github.com/orgs/IsantePlus/packages?tab=packages&q=omod)
-2. Click on the desired module
-3. Download the `*-omod-x.x.x-*.jar` (not `*-tests.jar`) file from the `Assets` section in the right column.
-4. Rename this file to, for example, `santedb-mpi-client-x.x.x-SNAPSHOT.omod` - or whatever module and version you're looking at.
-5. Use the file as a normal .omod file. 
-
-```
-mvn deploy:deploy-file -Durl=https://maven.pkg.github.com/isanteplus/isanteplus-packages -Dfile=omod/target/fhir2-1.2.0-SNAPSHOT.omod -DrepositoryId=isanteplus-github -DpomFile=pom.xml
-```
-
-```
+```xml
 <profile>
 	<id>github-packages</id>
 	<build>
@@ -100,6 +73,7 @@ mvn deploy:deploy-file -Durl=https://maven.pkg.github.com/isanteplus/isanteplus-
 				<artifactId>maven-deploy-plugin</artifactId>
 				<executions>
 					<execution>
+						<!-- Deploy OpenMRS omod file -->
 						<id>deploy-file</id>
 						<phase>deploy</phase>
 						<goals>
@@ -107,9 +81,8 @@ mvn deploy:deploy-file -Durl=https://maven.pkg.github.com/isanteplus/isanteplus-
 						</goals>
 						<configuration>
 							<url>https://maven.pkg.github.com/isanteplus/isanteplus-packages</url>
-							<file>target/fhir2-1.2.0-SNAPSHOT.omod</file>
+							<file>target/${project.parent.artifactId}-${project.version}.omod</file>
 							<repositoryId>isanteplus-github</repositoryId>
-							<packaging>omod</packaging>
 							<pomFile>pom.xml</pomFile>
 						</configuration>
 					</execution>
@@ -119,3 +92,21 @@ mvn deploy:deploy-file -Durl=https://maven.pkg.github.com/isanteplus/isanteplus-
 	</build>
 </profile>
 ```
+
+### Step 3: Github Personal Access Token
+
+Create a Personal Access Token with package permissions on Github. See https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/creating-a-personal-access-token for more information. 
+
+### Step 4: Configure maven settings
+
+Add the following section to your `.m2/settings.xm`l file:
+```xml
+<server>
+	<id>isanteplus-github</id>
+	<username>{{YOUR_GITHUB_USERNAME}}</username>
+	<password>{{Your Personal Access Token}}</password>
+</server>
+```  
+  
+## Package Versioning
+See https://wiki.openmrs.org/display/docs/Versioning
