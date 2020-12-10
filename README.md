@@ -18,48 +18,48 @@ Add the following to the `profiles` section of your root `pom.xml` file.
 
 ```xml
 <profiles>
-        <profile>
-	    <!-- Github Packages Integration -->
+    <profile>
+        <!-- Github Packages Integration -->
+        <id>github-packages</id>
+        <distributionManagement>
+        <!-- Deploy to Github Packages -->
+        <repository>
             <id>github-packages</id>
-            <distributionManagement>
-	    	<!-- Deploy to Github Packages -->
-                <repository>
-                    <id>github-packages</id>
-                    <name>Github iSantePlus Packages</name>
-                    <url>https://maven.pkg.github.com/isanteplus/isanteplus-packages</url>
-                    <uniqueVersion>false</uniqueVersion>
-                </repository>
-                <snapshotRepository>
-                    <id>github-packages</id>
-                    <name>Github iSantePlus Packages</name>
-                    <url>https://maven.pkg.github.com/isanteplus/isanteplus-packages</url>
-                    <uniqueVersion>true</uniqueVersion>
-                </snapshotRepository>
-            </distributionManagement>
-            <repositories>
-		<!-- Use the Github Packages Repo first when looking up dependencies -->
-                <repository>
-                    <id>github-packages</id>
-                    <name>Github iSantePlus Packages</name>
-                    <url>https://maven.pkg.github.com/isanteplus/isanteplus-packages</url>
-                </repository>
-            </repositories>
-            <build>
-                <plugins>
-	            <!-- Disable possible test jar generation -->
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-jar-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <phase>none</phase>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
+            <name>Github iSantePlus Packages</name>
+            <url>https://maven.pkg.github.com/isanteplus/isanteplus-packages</url>
+            <uniqueVersion>false</uniqueVersion>
+        </repository>
+        <snapshotRepository>
+            <id>github-packages</id>
+            <name>Github iSantePlus Packages</name>
+            <url>https://maven.pkg.github.com/isanteplus/isanteplus-packages</url>
+            <uniqueVersion>true</uniqueVersion>
+        </snapshotRepository>
+        </distributionManagement>
+        <repositories>
+        <!-- Use the Github Packages Repo first when looking up dependencies -->
+        <repository>
+            <id>github-packages</id>
+            <name>Github iSantePlus Packages</name>
+            <url>https://maven.pkg.github.com/isanteplus/isanteplus-packages</url>
+        </repository>
+        </repositories>
+        <build>
+        <plugins>
+            <!-- Disable possible test jar generation -->
+            <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-jar-plugin</artifactId>
+            <executions>
+                <execution>
+                <phase>none</phase>
+                </execution>
+            </executions>
+            </plugin>
+        </plugins>
+        </build>
+    </profile>
+</profiles>
 ```
 ### Step 2: Add a new profile to `omod/pom.xml`
 
@@ -67,30 +67,31 @@ Since the OpenMRS `*.omod` file is not a standard maven artifact, we need to man
 
 ```xml
 <profile>
-	<id>github-packages</id>
-	<build>
-		<plugins>
-			<plugin>
-				<artifactId>maven-deploy-plugin</artifactId>
-				<executions>
-					<execution>
-						<!-- Deploy OpenMRS omod file -->
-						<id>deploy-file</id>
-						<phase>deploy</phase>
-						<goals>
-							<goal>deploy-file</goal>
-						</goals>
-						<configuration>
-							<url>https://maven.pkg.github.com/isanteplus/isanteplus-packages</url>
-							<file>target/${project.parent.artifactId}-${project.version}.omod</file>
-							<repositoryId>isanteplus-github</repositoryId>
-							<pomFile>pom.xml</pomFile>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-	</build>
+    <id>github-packages</id>
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <!-- Deploy OpenMRS omod file -->
+                        <id>deploy-file</id>
+                        <phase>deploy</phase>
+                        <goals>
+                            <goal>deploy-file</goal>
+                        </goals>
+                        <configuration>
+                            <url>https://maven.pkg.github.com/isanteplus/isanteplus-packages</url>
+                            <file>target/${project.parent.artifactId}-${project.version}.omod</file>
+                            <repositoryId>isanteplus-github</repositoryId>
+                            <pomFile>pom.xml</pomFile>
+                            <packaging>omod</packaging>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </profile>
 ```
 
