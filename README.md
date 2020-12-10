@@ -109,6 +109,9 @@ Add the following section to your `.m2/settings.xm`l file:
 	<password>{{Your Personal Access Token}}</password>
 </server>
 ```  
+
+### Step 5: Deploy!
+`mvn deploy -P 'github-packages`
   
 ## Package Versioning
 See https://wiki.openmrs.org/display/docs/Versioning
