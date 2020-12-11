@@ -187,7 +187,7 @@ jobs:
         with:
           java-version: 1.8
       - name: Publish package
-        run: mvn -B deploy
+        run: mvn -B -DskipTests deploy
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
