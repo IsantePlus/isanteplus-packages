@@ -18,47 +18,57 @@ Add the following to the `profiles` section of your root `pom.xml` file.
 
 ```xml
 <profiles>
-    <profile>
-        <!-- Github Packages Integration -->
-        <id>github-packages</id>
-        <distributionManagement>
-        <!-- Deploy to Github Packages -->
-        <repository>
-            <id>github-packages</id>
-            <name>Github iSantePlus Packages</name>
-            <url>https://maven.pkg.github.com/isanteplus/isanteplus-packages</url>
-            <uniqueVersion>false</uniqueVersion>
-        </repository>
-        <snapshotRepository>
-            <id>github-packages</id>
-            <name>Github iSantePlus Packages</name>
-            <url>https://maven.pkg.github.com/isanteplus/isanteplus-packages</url>
-            <uniqueVersion>true</uniqueVersion>
-        </snapshotRepository>
-        </distributionManagement>
-        <repositories>
-        <!-- Use the Github Packages Repo first when looking up dependencies -->
-        <repository>
-            <id>github-packages</id>
-            <name>Github iSantePlus Packages</name>
-            <url>https://maven.pkg.github.com/isanteplus/isanteplus-packages</url>
-        </repository>
-        </repositories>
-        <build>
-        <plugins>
-            <!-- Disable possible test jar generation -->
-            <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-jar-plugin</artifactId>
-            <executions>
-                <execution>
-                <phase>none</phase>
-                </execution>
-            </executions>
-            </plugin>
-        </plugins>
-        </build>
-    </profile>
+	<profile>
+	    <!-- Github Packages Integration -->
+	    <id>github-packages</id>
+	    <distributionManagement>
+		<!-- Deploy to Github Packages -->
+		<repository>
+		    <id>github-packages</id>
+		    <name>Github iSantePlus Packages</name>
+		    <url>https://maven.pkg.github.com/isanteplus/isanteplus-packages</url>
+		    <uniqueVersion>false</uniqueVersion>
+		</repository>
+		<snapshotRepository>
+		    <id>github-packages</id>
+		    <name>Github iSantePlus Packages</name>
+		    <url>https://maven.pkg.github.com/isanteplus/isanteplus-packages</url>
+		    <uniqueVersion>true</uniqueVersion>
+		</snapshotRepository>
+	    </distributionManagement>
+	    <repositories>
+		<!-- Use the Github Packages Repo first when looking up dependencies -->
+		<repository>
+		    <id>github-packages</id>
+		    <name>Github iSantePlus Packages</name>
+		    <url>https://maven.pkg.github.com/isanteplus/isanteplus-packages</url>
+		</repository>
+	    </repositories>
+	    <build>
+		<plugins>
+		    <!-- Disable possible test jar generation -->
+		    <plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-jar-plugin</artifactId>
+			<executions>
+			    <execution>
+				<phase>none</phase>
+			    </execution>
+			</executions>
+		    </plugin>
+		    <plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-pmd-plugin</artifactId>
+			<executions>
+			    <execution>
+				<id>validate</id>
+				<phase>none</phase>
+			    </execution>
+			</executions>
+		    </plugin>
+		</plugins>
+	    </build>
+	</profile>
 </profiles>
 ```
 ### Step 2: Add a new profile to `omod/pom.xml`
@@ -66,33 +76,38 @@ Add the following to the `profiles` section of your root `pom.xml` file.
 Since the OpenMRS `*.omod` file is not a standard maven artifact, we need to manually push it to the repository. The `omod` file is created in the `omod` submodule, so this profile should be added to `omod/pom.xml`. 
 
 ```xml
-<profile>
-    <id>github-packages</id>
-    <build>
-        <plugins>
-            <plugin>
-                <artifactId>maven-deploy-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <!-- Deploy OpenMRS omod file -->
-                        <id>deploy-file</id>
-                        <phase>deploy</phase>
-                        <goals>
-                            <goal>deploy-file</goal>
-                        </goals>
-                        <configuration>
-                            <url>https://maven.pkg.github.com/isanteplus/isanteplus-packages</url>
-                            <file>target/${project.parent.artifactId}-${project.version}.omod</file>
-                            <repositoryId>github-packages</repositoryId>
-                            <pomFile>pom.xml</pomFile>
-                            <packaging>omod</packaging>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
-</profile>
+<profiles>
+    <profile>
+        <id>github-packages</id>
+        <build>
+            <plugins>
+                <plugin>
+                    <artifactId>maven-deploy-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <!-- Deploy OpenMRS omod file -->
+                            <id>deploy-file</id>
+                            <phase>deploy</phase>
+                            <goals>
+                                <goal>deploy-file</goal>
+                            </goals>
+                            <configuration>
+                                <url>https://maven.pkg.github.com/isanteplus/isanteplus-packages</url>
+                                <file>target/${project.parent.artifactId}-${project.version}.omod</file>
+                                <repositoryId>github-packages</repositoryId>
+                                <packaging>omod</packaging>
+                                <generatePom>false</generatePom>
+                                <artifactId>${project.parent.artifactId}</artifactId>
+                                <version>${project.version}</version>
+                                <groupId>${groupId}</groupId>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </build>
+    </profile>
+</profiles>
 ```
 
 ### Step 3: Github Personal Access Token
@@ -166,10 +181,6 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
       - name: Build with Maven
         run: mvn -B install
-        
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo It Ran!
 ```
 
 `.github/workflows/release.yml`
@@ -186,16 +197,30 @@ jobs:
       - uses: actions/setup-java@v1
         with:
           java-version: 1.8
+          server-id: github-packages # Value of the distributionManagement/repository/id field of the pom.xml
+          server-username: pmanko
+          server-password: ${{ secrets.TOKEN }} # env variable for token in deploy
       - name: Cache Maven packages
         uses: actions/cache@v2
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
+      - uses: s4u/maven-settings-action@v2.2.0
+        with:
+          servers: |
+            [{
+                "id": "github-packages",
+                "username": "${{ secrets.RELEASE_USERNAME }}",
+                "password": "${{ secrets.RELEASE_TOKEN }}"
+            }]
+          githubServer: false
+      - name: Build
+        run: mvn -P github-packages -pl '!build-tools' -DskipTests -Dfindbugs.skip=true -Dpmd.skip=true -Dcpd.skip=true -B package
       - name: Publish package
-        run: mvn -DskipTests -Dfindbugs.skip=true -Dfindbugs.skip=true -Dcpd.skip=true -Dpmd.skip=true -B package deploy
+        run: mvn -P github-packages -pl '!build-tools' -DskipTests -Dfindbugs.skip=true -Dpmd.skip=true -Dcpd.skip=true -B deploy
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
 ```
 ### Release Process
 1. Finalize PR from feature branch into master branch to make sure all tests pass. 
