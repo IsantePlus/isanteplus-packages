@@ -188,7 +188,9 @@ jobs:
 name: Publish package to GitHub Packages
 on:
   release:
-    types: [created]
+    types: [ created ]
+  push:
+    branches: [ master ]
 jobs:
   publish:
     runs-on: ubuntu-latest
