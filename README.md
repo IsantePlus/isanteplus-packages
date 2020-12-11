@@ -180,7 +180,7 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
       - name: Build with Maven
-        run: mvn -B install
+        run: mvn -P 'github-packages' -B install
 ```
 
 `.github/workflows/release.yml`
