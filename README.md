@@ -186,8 +186,14 @@ jobs:
       - uses: actions/setup-java@v1
         with:
           java-version: 1.8
+      - name: Cache Maven packages
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
       - name: Publish package
-        run: mvn -B -DskipTests deploy
+        run: mvn -DskipTests -Dfindbugs.skip=true -Dfindbugs.skip=true -Dcpd.skip=true -Dpmd.skip=true -B package deploy
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
