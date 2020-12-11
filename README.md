@@ -192,6 +192,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 ### Release Process
-1. Finalize PR from feature branch into master branch
+1. Finalize PR from feature branch into master branch to make sure all tests pass. 
 
-2. Use the GitHub UI to draft a new release and add a new tag with the version from the project pom file.
+2. Run `mvn clean package` locally to make sure everything builds correctly.
+
+3. Use the GitHub UI to draft a new release and add a new tag with the version from the project pom file.
+
+4. Add the locally-built `omod` file from the `omod/target` directory as an attached binary asset.
+
+
