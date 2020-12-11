@@ -176,9 +176,6 @@ jobs:
 ```yml
 name: Publish package to GitHub Packages
 on:
-  push:
-    tags:
-      - *
   release:
     types: [created]
 jobs:
@@ -194,3 +191,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
+### Release Process
+1. Finalize PR from feature branch into master branch
+
+2. Use the GitHub UI to draft a new release and add a new tag with the version from the project pom file.
